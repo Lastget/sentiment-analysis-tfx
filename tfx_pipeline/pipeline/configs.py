@@ -8,14 +8,9 @@ PIPELINE_NAME = 'sentiment-analysis-tfx'
 
 # Following code will retrieve your GCP project. You can choose which project 
 # to use by setting GOOGLE_CLOUD_PROJECT environment variable.
-try:
-    import google.auth  # pylint: disable=g-import-not-at-top  # pytype: disable=import-error
-    try:
-        _, GOOGLE_CLOUD_PROJECT = google.auth.default()
-    except google.auth.exceptions.DefaultCredentialsError:
-        GOOGLE_CLOUD_PROJECT = 'master-host-403612'
-except ImportError:
-    GOOGLE_CLOUD_PROJECT = 'master-host-403612'
+
+GOOGLE_CLOUD_PROJECT = 'master-host-403612'
+
 
 # Specify your GCS bucket name here. You have to use GCS to store output files 
 # when running a pipeline with Kubeflow Pipeline on GCP or when running a job
