@@ -2,7 +2,7 @@
 import os
 
 # Pipeline name will be used to identify this pipeline.
-PIPELINE_NAME = 'sentiment-analysis-tfx'
+PIPELINE_NAME = 'TFX_CICD_sentiment_analysis'
 
 # GCP related configs.
 
