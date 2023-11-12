@@ -88,7 +88,7 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
 
 
 def _raw_input(model, tf_transform_output):
-
+  # Assigns the transform features layer
   model.tft_layer = tf_transform_output.transform_features_layer()
 
   @tf.function
@@ -111,9 +111,11 @@ def _raw_input(model, tf_transform_output):
     return {
       'probabilities': outputs,
       'label_key': tf.argmax(outputs, axis=1),
+      # Computes tf.math.maximum of elements across dimensions of a tensor.
       'prediction_confidence': tf.reduce_max(outputs, axis=1)
       }
-
+  
+  # tf.function: return and called the fn. 
   return _fn_raw_input
 
 
@@ -216,7 +218,11 @@ def run_fn(fn_args: FnArgs) -> None:
         #  validation_steps= 1000,
     )
     
+    # signatures to define how our model will receive data.
     signatures = {
+        #  A concrete function is a function with a specific set of input signatures and shapes,
+        #  which can be useful for optimizing and speeding up execution.
+        #  TensorSpec: It is often used to define the expected shape and dtype of a tensor without creating an actual tensor.
         'serving_default':
         _get_serve_tf_examples_fn(model, 
                                  tf_transform_output).get_concrete_function(
