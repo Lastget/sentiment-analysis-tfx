@@ -38,8 +38,7 @@ def run():
           tuner_path=configs.LOCAL_TUNER_MODULE_PATH,
           training_module=configs.LOCAL_TRAIN_MODULE_FILE,
           serving_model_dir=SERVING_MODEL_DIR,
-          metadata_connection_config=tfx.orchestration.metadata
-          .sqlite_metadata_connection_config(METADATA_PATH)
+          metadata_connection_config=tfx.orchestration.metadata.sqlite_metadata_connection_config(METADATA_PATH)
           )
         )
 
