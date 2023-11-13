@@ -16,6 +16,7 @@ from ml_metadata.proto import metadata_store_pb2
 def create_pipeline(
     pipeline_name: Text,
     pipeline_root: Text,
+    project_id: Text,
     data_path: Text,
     preprocessing_module: Text,
     tuner_path: Text,
@@ -25,8 +26,11 @@ def create_pipeline(
     ai_platform_training_args: Optional[Dict[Text, Text]] = None,
     ai_platform_serving_args: Optional[Dict[Text, Text]] = None,
     enable_cache: Optional[bool] = False,
+    use_gpu: Optional[bool] = False,
+    # endpoint_name: Optional[str],
     metadata_connection_config: Optional[metadata_store_pb2.ConnectionConfig] = None,
     ) -> pipeline.Pipeline:
+    """Implements the pipeline with TFX."""
     
     # initialize components list
     components = []

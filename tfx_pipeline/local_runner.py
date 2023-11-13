@@ -29,18 +29,18 @@ SERVING_MODEL_DIR = os.path.join(PIPELINE_ROOT, 'serving_model')
 def run():
   """Define a local pipeline."""
 
-  tfx.orchestration.LocalDagRunner().run(
-      run_pipeline.create_pipeline(
-          pipeline_name=configs.PIPELINE_NAME,
-          pipeline_root=PIPELINE_ROOT,
-          data_path=configs.LOCAL_DATA_PATH,
-          preprocessing_module=configs.LOCAL_TRANSFORM_MODULE_FILE,
-          tuner_path=configs.LOCAL_TUNER_MODULE_PATH,
-          training_module=configs.LOCAL_TRAIN_MODULE_FILE,
-          serving_model_dir=SERVING_MODEL_DIR,
-          metadata_connection_config=tfx.orchestration.metadata.sqlite_metadata_connection_config(METADATA_PATH)
-          )
+  my_pipeline =  run_pipeline.create_pipeline(
+        pipeline_name=configs.PIPELINE_NAME,
+        pipeline_root=PIPELINE_ROOT,
+        data_path=configs.LOCAL_DATA_PATH,
+        preprocessing_module=configs.LOCAL_TRANSFORM_MODULE_FILE,
+        tuner_path=configs.LOCAL_TUNER_MODULE_PATH,
+        training_module=configs.LOCAL_TRAIN_MODULE_FILE,
+        serving_model_dir=SERVING_MODEL_DIR,
+        metadata_connection_config=tfx.orchestration.metadata.sqlite_metadata_connection_config(METADATA_PATH)
         )
+
+  tfx.orchestration.LocalDagRunner().run(my_pipeline)
 
 
 if __name__ == '__main__':
