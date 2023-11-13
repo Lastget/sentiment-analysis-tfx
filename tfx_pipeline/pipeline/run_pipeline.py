@@ -16,7 +16,6 @@ from ml_metadata.proto import metadata_store_pb2
 def create_pipeline(
     pipeline_name: Text,
     pipeline_root: Text,
-    project_id: Text,
     data_path: Text,
     preprocessing_module: Text,
     tuner_path: Text,
