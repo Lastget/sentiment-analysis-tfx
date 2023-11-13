@@ -181,6 +181,15 @@ def create_pipeline(
         
     components.append(pusher)
 
+    return tfx.dsl.Pipeline(
+        pipeline_name=pipeline_name,
+        pipeline_root=pipeline_root,
+        components=components,
+        beam_pipeline_args=beam_pipeline_args,
+        enable_cache=enable_cache,
+        metadata_connection_config=metadata_connection_config,
+    )
+
 
     
 
