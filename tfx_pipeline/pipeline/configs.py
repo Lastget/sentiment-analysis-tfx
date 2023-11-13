@@ -18,7 +18,6 @@ GOOGLE_CLOUD_PROJECT = 'master-host-403612'
 # This bucket is created automatically when you deploy KFP from marketplace.
 # GCS_BUCKET_NAME = GOOGLE_CLOUD_PROJECT + '-kubeflowpipelines-default'
 GCS_BUCKET_NAME = GOOGLE_CLOUD_PROJECT + '-vertex-default'
-
 GOOGLE_CLOUD_REGION = 'us-central1'
 
 # GCP
@@ -27,6 +26,11 @@ TRAIN_MODULE_FILE = 'gs://{}/{}/modules/model.py'.format(GCS_BUCKET_NAME, PIPELI
 TUNER_MODULE_PATH = 'gs://{}/{}/best_hyperparameters/'.format(GCS_BUCKET_NAME, PIPELINE_NAME)
 DATA_PATH = 'gs://{}/{}/data/'.format(GCS_BUCKET_NAME, PIPELINE_NAME)
 LABEL_ENCODER_FILE = 'gs://{}/{}/modules/label_encoder.pkl'.format(GCS_BUCKET_NAME, PIPELINE_NAME)
+
+# Paths for users' Python module.
+MODULE_ROOT = 'gs://{}/{}/modules/'.format(GCS_BUCKET_NAME, PIPELINE_NAME)
+# Name of Vertex AI Endpoint.
+ENDPOINT_NAME = 'prediction-' + PIPELINE_NAME
 
 # LOCAL
 LOCAL_TRANSFORM_MODULE_FILE = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), r'../..', 'modules', 'preprocessing.py'))
@@ -41,33 +45,34 @@ LOCAL_LABEL_ENCODER_FILE = os.path.abspath(os.path.join(os.path.dirname(os.path.
 PIPELINE_IMAGE = f'gcr.io/{GOOGLE_CLOUD_PROJECT}/{PIPELINE_NAME}'
 
 
-# # (Optional) Uncomment below to use AI Platform training.
-# GCP_AI_PLATFORM_TRAINING_ARGS = {
-#     'project': GOOGLE_CLOUD_PROJECT,
-#     'region': GOOGLE_CLOUD_REGION,
-#     # Starting from TFX 0.14, training on AI Platform uses custom containers:
-#     # https://cloud.google.com/ml-engine/docs/containers-overview
-#     # You can specify a custom container here. If not specified, TFX will use
-#     # a public container image matching the installed version of TFX.
-#     # (Optional) Set your container name below.
-#     'masterConfig': {
-#       'imageUri': PIPELINE_IMAGE
-#     },
-#     # Note that if you do specify a custom container, ensure the entrypoint
-#     # calls into TFX's run_executor script (tfx/scripts/run_executor.py)
-# }
+# (Optional) Uncomment below to use AI Platform training.
+VERTEX_TRAINING_ARGS = {
+    'project': GOOGLE_CLOUD_PROJECT,
+            'worker_pool_specs': [{
+                'machine_spec': {
+                    'machine_type': 'n1-standard-4',
+                },
+                'replica_count': 1,
+                'container_spec': {
+                    'image_uri': 'gcr.io/tfx-oss-public/tfx:{}'.format(tfx.__version__),
+                },
+            }],
+}
 
-# # A dict which contains the serving job parameters to be passed to Google
-# # Cloud AI Platform. For the full set of parameters supported by Google Cloud AI
-# # Platform, refer to
-# # https://cloud.google.com/ml-engine/reference/rest/v1/projects.models
-# # (Optional) Uncomment below to use AI Platform serving.
-# GCP_AI_PLATFORM_SERVING_ARGS = {
-#     'model_name': PIPELINE_NAME.replace('-','_'),  # '-' is not allowed.
-#     'project_id': GOOGLE_CLOUD_PROJECT,
-#     # The region to use when serving the model. See available regions here:
-#     # https://cloud.google.com/ml-engine/docs/regions
-#     # Note that serving currently only supports a single region:
-#     # https://cloud.google.com/ml-engine/reference/rest/v1/projects.models#Model  # pylint: disable=line-too-long
-#     'regions': [GOOGLE_CLOUD_REGION],
-# }
+# A dict which contains the serving job parameters to be passed to Google
+# Cloud AI Platform. For the full set of parameters supported by Google Cloud AI
+# Platform, refer to
+# https://cloud.google.com/ml-engine/reference/rest/v1/projects.models
+# (Optional) Uncomment below to use AI Platform serving.
+VERTEX_SERVING_ARGS = {
+    'project_id': GOOGLE_CLOUD_PROJECT,
+    'endpoint_name': ENDPOINT_NAME,
+    # Remaining argument is passed to aiplatform.Model.deploy()
+    # See https://cloud.google.com/vertex-ai/docs/predictions/deploy-model-api#deploy_the_model
+    # for the detail.
+    #
+    # Machine type is the compute resource to serve prediction requests.
+    # See https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types
+    # for available machine types and acccerators.
+    'machine_type': 'n1-standard-4',
+}

@@ -22,14 +22,15 @@ def create_pipeline(
     training_module: Text,
     serving_model_dir: Text,
     beam_pipeline_args: Optional[List[Text]] = None,
-    ai_platform_training_args: Optional[Dict[Text, Text]] = None,
-    ai_platform_serving_args: Optional[Dict[Text, Text]] = None,
+    vertex_training_args: Optional[Dict[Text, Text]] = None,
+    vertex_serving_args: Optional[Dict[Text, Text]] = None,
     enable_cache: Optional[bool] = False,
-    use_gpu: Optional[bool] = False,
-    # endpoint_name: Optional[str],
+    use_gpu: bool = False,
+    region: Optional[Text] = 'us-central1',
     metadata_connection_config: Optional[metadata_store_pb2.ConnectionConfig] = None,
-    ) -> pipeline.Pipeline:
+    ) -> tfx.dsl.Pipeline:
     """Implements the pipeline with TFX."""
+    
     
     # initialize components list
     components = []
@@ -85,21 +86,37 @@ def create_pipeline(
     
     components.append(hparams_importer)
 
+
+    # Configuration for Vertex AI Training.
+    if use_gpu:
+        # See https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#acceleratortype
+        # for available machine types.
+        vertex_training_args['worker_pool_specs'][0]['machine_spec'].update({
+            'accelerator_type': 'NVIDIA_TESLA_K80',
+            'accelerator_count': 1
+        })
+
     # Train 
     trainer_args = dict(
-    module_file=training_module,
-    examples=transform.outputs['transformed_examples'],
-    hyperparameters=hparams_importer.outputs['result'],
-    transform_graph=transform.outputs['transform_graph'],
-    schema=schema_gen.outputs['schema'],
-    train_args=trainer_pb2.TrainArgs(splits=['train']),
-    eval_args=trainer_pb2.EvalArgs(splits=['eval']),
-)
+        module_file=training_module,
+        examples=transform.outputs['transformed_examples'],
+        hyperparameters=hparams_importer.outputs['result'],
+        transform_graph=transform.outputs['transform_graph'],
+        schema=schema_gen.outputs['schema'],
+        train_args=tfx.proto.TrainArgs(splits=['train']),
+        eval_args=tfx.proto.EvalArgs(splits=['eval']),
+    )
 
-    if ai_platform_training_args is not None:
+    if vertex_training_args is not None:
         trainer_args['custom_config'] = {
+            tfx.extensions.google_cloud_ai_platform.ENABLE_VERTEX_KEY:
+              True,
+            tfx.extensions.google_cloud_ai_platform.VERTEX_REGION_KEY:
+              region,
             tfx.extensions.google_cloud_ai_platform.TRAINING_ARGS_KEY:
-                ai_platform_training_args,
+              vertex_training_args,
+            'use_gpu':
+              use_gpu,
         }   
 
         trainer = tfx.extensions.google_cloud_ai_platform.Trainer(**trainer_args)
@@ -159,16 +176,35 @@ def create_pipeline(
     components.append(evaluator)
 
     # Pusher
+    # pre-build image from vertex 
+    # See https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers
+    # for available container images.
+    serving_image = 'us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest'
+
+    if use_gpu:
+        vertex_serving_args.update({
+            'accelerator_type': 'NVIDIA_TESLA_K80',
+            'accelerator_count': 1
+        })
+
+        serving_image = 'us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-6:latest'
+    
     pusher_args = {
     'model': trainer.outputs['model'],
     'model_blessing': evaluator.outputs['blessing'],
     }
 
-    if ai_platform_serving_args is not None:
+
+    if vertex_serving_args is not None:
         pusher_args['custom_config'] = {
-            tfx.extensions.google_cloud_ai_platform.experimental
-            .PUSHER_SERVING_ARGS_KEY:
-                ai_platform_serving_args
+            tfx.extensions.google_cloud_ai_platform.ENABLE_VERTEX_KEY:
+                True,
+            tfx.extensions.google_cloud_ai_platform.VERTEX_REGION_KEY:
+                region,
+            tfx.extensions.google_cloud_ai_platform.VERTEX_CONTAINER_IMAGE_URI_KEY:
+                serving_image,
+            tfx.extensions.google_cloud_ai_platform.SERVING_ARGS_KEY:
+                vertex_serving_args,
         }
 
         pusher = tfx.extensions.google_cloud_ai_platform.Pusher(**pusher_args)
