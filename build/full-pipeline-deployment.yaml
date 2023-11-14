@@ -24,7 +24,7 @@ steps:
   id: 'Copy Hyperparameter'
   waitFor: ['Copy Data']
 
-- name: 'us-central1-docker.pkg.dev/$_PROJECT/cb-tfx/tfx-kfp:latest'
+- name: 'us-central1-docker.pkg.dev/master-host-403612/cb-tfx/tfx-kfp:latest'
   entrypoint: 'tfx'
   args: ['pipeline', 'compile',
           '--pipeline-path', 'kubeflow_runner.py',
@@ -34,7 +34,7 @@ steps:
   id: 'Compile Pipeline'
   waitFor: ['Copy Hyperparameter']
 
-- name: 'us-central1-docker.pkg.dev/$_PROJECT/cb-tfx/tfx-kfp:latest'
+- name: 'us-central1-docker.pkg.dev/master-host-403612/cb-tfx/tfx-kfp:latest'
   entrypoint: 'tfx'
   args: ['pipeline', 'create',
           '--pipeline-path', 'kubeflow_runner.py',
@@ -45,7 +45,7 @@ steps:
   id: 'Create Pipeline'
   waitFor: ['Compile Pipeline']  
 
-- name: 'us-central1-docker.pkg.dev/$_PROJECT/cb-tfx/tfx-kfp:latest'
+- name: 'us-central1-docker.pkg.dev/master-host-403612/cb-tfx/tfx-kfp:latest'
   entrypoint: 'tfx'
   args: ['run', 'create',
           '--engine', 'vertex',
