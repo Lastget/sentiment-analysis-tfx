@@ -27,7 +27,7 @@ steps:
 - name: 'us-central1-docker.pkg.dev/$_PROJECT/cb-tfx/tfx-kfp:latest'
   entrypoint: 'tfx'
   args: ['pipeline', 'create',
-         '--pipeline-path', 'kubeflow_v2_runner.py',
+         '--pipeline-path', 'kubeflow_runner.py',
          '--engine', 'vertex',
         ]
   dir: 'TFX_CICD_sentiment_analysis/tfx_pipeline'
