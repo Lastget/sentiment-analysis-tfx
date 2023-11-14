@@ -24,7 +24,7 @@ steps:
   id: 'Copy Hyperparameter'
   waitFor: ['Copy Data']
 
-- name: 'us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest'
+- name: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   entrypoint: 'tfx'
   args: ['pipeline', 'compile',
           '--pipeline-path', 'kubeflow_v2_runner.py',
@@ -34,7 +34,7 @@ steps:
   id: 'Compile Pipeline'
   waitFor: ['Copy Hyperparameter']
 
-- name: 'us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest'
+- name: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   entrypoint: 'tfx'
   args: ['pipeline', 'create',
           '--pipeline-path', 'kubeflow_v2_runner.py',
@@ -45,7 +45,7 @@ steps:
   id: 'Create Pipeline'
   waitFor: ['Compile Pipeline']  
 
-- name: 'us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest'
+- name: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   entrypoint: 'tfx'
   args: ['run', 'create',
           '--engine', 'vertex',

@@ -30,11 +30,11 @@ steps:
          '--pipeline-path', 'kubeflow_v2_runner.py',
          '--engine', 'vertex',
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx_pipeline'
+  dir: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   id: 'Create Pipeline'
   waitFor: ['Copy Hyperparameter']
 
-- name: 'us-docker.pkg.dev/vertex-ai/training/tf-gpu.2-12.py310:latest'
+- name: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   entrypoint: 'tfx'
   args: ['run', 'create',
          '--engine', 'vertex',
@@ -42,6 +42,6 @@ steps:
          '--project', '$_PROJECT',
          '--region', '$_REGION'
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx_pipeline'
+  dir: 'pkg.dev/$_PROJECT/cb-tfx:latest'
   id: 'Create Pipeline Run'
   waitFor: ['Create Pipeline']
