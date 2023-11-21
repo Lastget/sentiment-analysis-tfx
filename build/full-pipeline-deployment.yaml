@@ -8,19 +8,19 @@ steps:
   
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', '*.py', '*.pkl', 'gs://$_PROJECT-vertex-default/$_PIPELINE_NAME/modules']
-  dir: 'TFX_CICD_sentiment_analysis/modules'
+  dir: 'sentiment-analysis-tfx/modules'
   id: 'Copy Modules'
   waitFor: ['Clone Repository']
 
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', '*.csv', 'gs://$_PROJECT-vertex-default/$_PIPELINE_NAME/data']
-  dir: 'TFX_CICD_sentiment_analysis/modules/data'
+  dir: 'sentiment-analysis-tfx/modules/data'
   id: 'Copy Data'
   waitFor: ['Copy Modules']
 
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', '*.txt', 'gs://$_PROJECT-vertex-default/$_PIPELINE_NAME/best_hyperparameters']
-  dir: 'TFX_CICD_sentiment_analysis/modules/best_hyperparameters'
+  dir: 'sentiment-analysis-tfx/modules/best_hyperparameters'
   id: 'Copy Hyperparameter'
   waitFor: ['Copy Data']
 
@@ -30,7 +30,7 @@ steps:
           '--pipeline-path', 'kubeflow_runner.py',
           '--engine', 'vertex',
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx-pipeline'
+  dir: 'sentiment-analysis-tfx/tfx-pipeline'
   id: 'Compile Pipeline'
   waitFor: ['Copy Hyperparameter']
 
@@ -41,7 +41,7 @@ steps:
           '--engine', 'vertex',
           '--build-image'
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx-pipeline'
+  dir: 'sentiment-analysis-tfx/tfx-pipeline'
   id: 'Create Pipeline'
   waitFor: ['Compile Pipeline']  
 
@@ -53,6 +53,6 @@ steps:
           '--project', '$_PROJECT',
           '--region', '$_REGION'
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx-pipeline'
+  dir: 'sentiment-analysis-tfx/tfx-pipeline'
   id: 'Create Pipeline Run'
   waitFor: ['Create Pipeline']

@@ -11,8 +11,8 @@ env:
   SUBSTITUTIONS: "
             _PROJECT=${{ secrets.GCP_PROJECT_ID }},\
             _REGION=us-central1,\
-            _PIPELINE_NAME=TFX_CICD_sentiment_analysis,\
-            _REPO_URL=https://github.com/Lastget/TFX_CICD_sentiment_analysis,\
+            _PIPELINE_NAME=sentiment-analysis-tfx,\
+            _REPO_URL=https://github.com/Lastget/sentiment-analysis-tfx,\
             _BRANCH=main,\
             "    
 jobs:
