@@ -37,7 +37,7 @@ jobs:
           base: 'main'        
           filters: |
             pipeline:
-              - 'tfx_pipeline/**'
+              - 'tfx-pipeline/**'
             modules:
               - 'modules/**'
       - name: trigger cloud build based on pipeline changes

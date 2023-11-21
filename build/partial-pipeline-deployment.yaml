@@ -30,7 +30,7 @@ steps:
          '--pipeline-path', 'kubeflow_runner.py',
          '--engine', 'vertex',
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx_pipeline'
+  dir: 'TFX_CICD_sentiment_analysis/tfx-pipeline'
   id: 'Create Pipeline'
   waitFor: ['Copy Hyperparameter']
 
@@ -42,6 +42,6 @@ steps:
          '--project', '$_PROJECT',
          '--region', '$_REGION'
         ]
-  dir: 'TFX_CICD_sentiment_analysis/tfx_pipeline'
+  dir: 'TFX_CICD_sentiment_analysis/tfx-pipeline'
   id: 'Create Pipeline Run'
   waitFor: ['Create Pipeline']
